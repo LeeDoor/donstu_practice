@@ -1,6 +1,11 @@
 #include "sorting.hpp"
 #include <chrono>
 #include <iostream>
+
+static const std::string_view MERGE_STR= "Merge";
+static const std::string_view QUICK_STR = "Quick";
+static const std::string_view INSERTION_STR = "Insertion";
+
 void merge_sort(std::vector<int>& source, std::vector<int>& dest, int l, int r) {
     if(l == r) return;
     int m = (l + r) / 2;
@@ -23,14 +28,40 @@ void merge_sort(std::vector<int>& source, std::vector<int>& dest, int l, int r) 
 }
 void merge_sort(std::vector<int>& numbers) {
     std::vector<int> buffer(numbers.size());
-    std::chrono::time_point begin = std::chrono::steady_clock::now();
     merge_sort(numbers, buffer, 0, numbers.size() - 1);
-    std::chrono::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
 }
-void quick_sort(std::vector<int>&& numbers) {
-
+int pin_pivot(std::vector<int>& numbers, int l, int r) {
+    int pivot = numbers[r]; 
+    int i = l - 1;
+    for(int j = l; j < r; ++j) {
+        if(numbers[j] < pivot) {
+            ++i;
+            std::swap(numbers[i], numbers[j]);
+        }
+    }
+    std::swap(numbers[i + 1], numbers[r]);
+    return i + 1;
+}
+void quick_sort(std::vector<int>& numbers, int l, int r) {
+    if(l >= r) return;
+    int pivot = pin_pivot(numbers, l, r);
+    quick_sort(numbers, l, pivot - 1);
+    quick_sort(numbers, pivot + 1, r);
+}
+void quick_sort(std::vector<int>& numbers) {
+    quick_sort(numbers, 0, numbers.size() - 1);
 }
 void insertion_sort(std::vector<int>&& numbers) {
 
+}
+std::string_view sort_type_str(SORT_TYPE type) {
+    switch(type) {
+        case SORT_TYPE::MERGE_SORT:
+            return MERGE_STR;
+        case SORT_TYPE::QUICK_SORT:
+            return QUICK_STR;
+        case SORT_TYPE::INSERTION_SORT:
+            return INSERTION_STR;
+    }
+    throw std::logic_error("sort_type_str did not capture the type.");
 }

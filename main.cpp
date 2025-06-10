@@ -1,8 +1,13 @@
 #include <climits>
+#include <chrono>
+#include <functional>
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include "sorting.hpp"
+#include "number_generator.hpp"
+
+static const std::string_view DELIMETER = "============";
 
 int get_input(int from, int to) {
     int input = -1;
@@ -17,37 +22,71 @@ int get_input(int from, int to) {
     }
     return input;
 }
-std::vector<int> request_numbers(size_t size = 100) {
-    std::vector<int> result(size);
-    for(size_t i = 0; i < size; ++i) result[i] = size - i;
-    return result;
-}
-void print_array(const std::vector<int>& array) {
-    for(int i : array) {
-        std::cout << i << ' ';
-    }   std::cout << std::endl;
+void print_array(std::ostream* os, const std::vector<int>& numbers) {
+    if(numbers.size() > 100) 
+        (*os) << "<array of " << numbers.size() << " elements>\n";
+    else {
+        for(int i : numbers) {
+            (*os) << i << ' ';
+        }   (*os) << std::endl;
+    }
 }
 
 std::ostream* ask_ostream() {
     std::cout << 
         "Where do you want to put sorting results?\n"
-        "0) avoid them\n"
         "1) standard output\n"
-        "2) file #TODO\n";
-    int print_result = get_input(0, 2);
+        "2) file\n";
+    int print_result = get_input(1, 2);
     switch(print_result) {
-        case 0:
-            return nullptr;
         case 1:
             return &std::cout;
         case 2:
-            return new std::ofstream("output.txt");
+            std::string filename;
+            std::cout << "Enter file name: ";
+            std::cin >> filename;
+            return new std::ofstream(filename);
     }
-    return nullptr;
+    throw std::logic_error("print_result is not captured.");
 }
 void remove_ostream(std::ostream* output) {
     if(output == nullptr || output == &std::cout) return;
     delete output;
+}
+
+std::chrono::milliseconds measure_time(std::function<void(std::vector<int>&)> method, std::vector<int>& numbers) {
+    auto begin_time = std::chrono::steady_clock::now();
+    method(numbers);
+    auto end_time = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
+}
+void run_sorting(std::ostream* os, SORT_TYPE sort_type, size_t array_size, GENERATION_TYPE gen_type = GENERATION_TYPE::RANDOM) {
+    std::vector<int> numbers = generate_numbers(array_size, gen_type);
+    (*os) << DELIMETER << std::endl;
+    (*os) << "Initial array: ";
+    print_array(os, numbers);
+    
+    auto elapsed = measure_time(get_sort_method(sort_type), numbers);
+
+    (*os) << "Sorted array: ";
+    print_array(os, numbers);
+    (*os) << "Elapsed time: " << elapsed.count() << "ms\n";
+}
+
+void run_benchmarking(std::ostream* os, size_t array_size, std::list<SORT_TYPE> methods) {
+    (*os) << "Benchmarking array of size " << array_size << std::endl;
+    (*os) << "\t";
+    for(GENERATION_TYPE type : generation_types) {
+        (*os) << gen_type_str(type) << '\t';
+    }   (*os) << std::endl;
+    for(SORT_TYPE sort_type : methods) {
+        (*os) << sort_type_str(sort_type) << '\t';
+        for(GENERATION_TYPE gen_type : generation_types) {
+            auto numbers = generate_numbers(array_size, gen_type);
+            auto elapsed = measure_time(get_sort_method(sort_type), numbers);
+            (*os) << elapsed.count() << "ms\t";
+        }   (*os) << std::endl;
+    }
 }
 
 bool main_menu() {
@@ -56,27 +95,25 @@ bool main_menu() {
         "0) Exit\n"
         "1) Sort using Merge sort\n"
         "2) Sort using Quick sort\n"
-        "3) Sort using Insertion sort\n";
-    int input = get_input(0, 3);
+        "3) Sort using Insertion sort\n"
+        "4) Benchmark algorithms\n";
+    int input = get_input(0, 4);
     if(input == 0) return false;
     std::ostream* output = ask_ostream();
-    std::vector<int> numbers = request_numbers(100000);
+    std::cout << "Enter the generated array size: ";
+    size_t array_size = get_input(1, INT_MAX);
     switch(input) {
-        case 1: {
-            print(output, "initial array: ");
-            print_array(numbers);
-            std::cout << std::endl;
-            merge_sort(numbers);
-            std::cout << "sorted array: ";
-            print_array(numbers);
-            std::cout << std::endl;
+        case 1: 
+            run_sorting(output, SORT_TYPE::MERGE_SORT, array_size);
             break;
-        }
         case 2:
-            quick_sort(request_numbers());
+            run_sorting(output, SORT_TYPE::QUICK_SORT, array_size);
             break;
         case 3:
-            insertion_sort(request_numbers());
+            // run_sorting(output, insertion_sort);
+            break;
+        case 4:
+            run_benchmarking(output, array_size, {MERGE_SORT, QUICK_SORT});
             break;
     }
     remove_ostream(output);
@@ -84,7 +121,7 @@ bool main_menu() {
 }
 
 int main() {
-    int choice = -1;
+    srand(time(NULL));
     std::cout << "Welcome to sorting comparer!\n";
     while(main_menu());
 }
