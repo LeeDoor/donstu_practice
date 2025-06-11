@@ -75,16 +75,17 @@ void run_sorting(std::ostream* os, SORT_TYPE sort_type, size_t array_size, GENER
 
 void run_benchmarking(std::ostream* os, size_t array_size, std::list<SORT_TYPE> methods) {
     (*os) << "Benchmarking array of size " << array_size << std::endl;
-    (*os) << "\t";
+    (*os) << std::left;
+    (*os) << std::setw(15) << "Sort Type"; 
     for(GENERATION_TYPE type : generation_types) {
-        (*os) << gen_type_str(type) << '\t';
+        (*os) << std::setw(15) << gen_type_str(type);
     }   (*os) << std::endl;
     for(SORT_TYPE sort_type : methods) {
-        (*os) << sort_type_str(sort_type) << '\t';
+        (*os) << std::setw(15) << sort_type_str(sort_type);
         for(GENERATION_TYPE gen_type : generation_types) {
             auto numbers = generate_numbers(array_size, gen_type);
             auto elapsed = measure_time(get_sort_method(sort_type), numbers);
-            (*os) << elapsed.count() << "ms\t";
+            (*os) << std::setw(15) << std::to_string(elapsed.count()) + "ms";
         }   (*os) << std::endl;
     }
 }
@@ -110,10 +111,10 @@ bool main_menu() {
             run_sorting(output, SORT_TYPE::QUICK_SORT, array_size);
             break;
         case 3:
-            // run_sorting(output, insertion_sort);
+            run_sorting(output, SORT_TYPE::INSERTION_SORT, array_size);
             break;
         case 4:
-            run_benchmarking(output, array_size, {MERGE_SORT, QUICK_SORT});
+            run_benchmarking(output, array_size, {MERGE_SORT, QUICK_SORT, INSERTION_SORT});
             break;
     }
     remove_ostream(output);

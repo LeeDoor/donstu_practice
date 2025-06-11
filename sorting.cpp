@@ -51,8 +51,17 @@ void quick_sort(std::vector<int>& numbers, int l, int r) {
 void quick_sort(std::vector<int>& numbers) {
     quick_sort(numbers, 0, numbers.size() - 1);
 }
-void insertion_sort(std::vector<int>&& numbers) {
-
+void insertion_sort(std::vector<int>& numbers) {
+    int n = numbers.size();
+    for(int i = 1; i < n; ++i) {
+        int k = numbers[i];
+        int j = i - 1;
+        while (j >= 0 && numbers[j] > k) {
+            std::swap(numbers[j + 1], numbers[j]);
+            --j;
+        }
+        numbers[j + 1] = k;
+    }
 }
 std::string_view sort_type_str(SORT_TYPE type) {
     switch(type) {

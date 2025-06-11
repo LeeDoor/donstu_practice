@@ -11,7 +11,7 @@ enum SORT_TYPE {
 };
 void merge_sort(std::vector<int>& numbers);
 void quick_sort(std::vector<int>& numbers);
-void insertion_sort(std::vector<int>&& numbers);
+void insertion_sort(std::vector<int>& numbers);
 inline std::function<void(std::vector<int>&)> get_sort_method(SORT_TYPE type) {
     switch(type) {
         case SORT_TYPE::MERGE_SORT:
@@ -19,7 +19,7 @@ inline std::function<void(std::vector<int>&)> get_sort_method(SORT_TYPE type) {
         case SORT_TYPE::QUICK_SORT:
             return quick_sort;
         case SORT_TYPE::INSERTION_SORT:
-            throw -1488;
+            return insertion_sort;
     }
     throw std::logic_error("get_sort_method not captured.");
 }
