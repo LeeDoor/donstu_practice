@@ -7,7 +7,7 @@ static const std::string_view QUICK_STR = "Quick";
 static const std::string_view INSERTION_STR = "Insertion";
 
 void merge_sort(std::vector<int>& source, std::vector<int>& dest, int l, int r) {
-    if(l == r) return;
+    if(l >= r) return;
     int m = (l + r) / 2;
     merge_sort(source, dest, l, m);
     merge_sort(source, dest, m + 1, r);

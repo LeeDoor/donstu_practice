@@ -23,13 +23,9 @@ int get_input(int from, int to) {
     return input;
 }
 void print_array(std::ostream* os, const std::vector<int>& numbers) {
-    if(numbers.size() > 100) 
-        (*os) << "<array of " << numbers.size() << " elements>\n";
-    else {
         for(int i : numbers) {
             (*os) << i << ' ';
-        }   (*os) << std::endl;
-    }
+    }   (*os) << std::endl;
 }
 
 std::ostream* ask_ostream() {
@@ -60,12 +56,35 @@ std::chrono::milliseconds measure_time(std::function<void(std::vector<int>&)> me
     auto end_time = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
 }
-void run_sorting(std::ostream* os, SORT_TYPE sort_type, size_t array_size, GENERATION_TYPE gen_type = GENERATION_TYPE::RANDOM) {
-    std::vector<int> numbers = generate_numbers(array_size, gen_type);
+std::vector<int> get_user_numbers() {
+    std::cout << 
+        "Which numbers do you want to sort?\n"
+        "1) Enter manually\n"
+        "2) Read from file\n"
+        "3) Generate randomly\n";
+    int select = get_input(1, 3);
+    switch(select) {
+        case 1: {
+            return get_input_array();
+        }
+        case 2: {
+            std::string filename;
+            std::cout << "Enter file name: ";
+            std::cin >> filename;
+            return read_numbers_from_file(filename);
+        }
+        case 3: {
+            return generate_numbers(99, RANDOM);
+        }
+    }       
+    throw std::logic_error("get_input in get_user_numbers gave wrong input.");
+}
+void run_sorting(std::ostream* os, SORT_TYPE sort_type) {
+    std::vector<int> numbers = get_user_numbers();
     (*os) << DELIMETER << std::endl;
     (*os) << "Initial array: ";
     print_array(os, numbers);
-    
+
     auto elapsed = measure_time(get_sort_method(sort_type), numbers);
 
     (*os) << "Sorted array: ";
@@ -73,7 +92,9 @@ void run_sorting(std::ostream* os, SORT_TYPE sort_type, size_t array_size, GENER
     (*os) << "Elapsed time: " << elapsed.count() << "ms\n";
 }
 
-void run_benchmarking(std::ostream* os, size_t array_size, std::list<SORT_TYPE> methods) {
+void run_benchmarking(std::ostream* os, std::list<SORT_TYPE> methods) {
+    std::cout << "Enter array size to generate:\n";
+    int array_size = get_input(0, INT_MAX);
     (*os) << "Benchmarking array of size " << array_size << std::endl;
     (*os) << std::left;
     (*os) << std::setw(15) << "Sort Type"; 
@@ -101,20 +122,18 @@ bool main_menu() {
     int input = get_input(0, 4);
     if(input == 0) return false;
     std::ostream* output = ask_ostream();
-    std::cout << "Enter the generated array size: ";
-    size_t array_size = get_input(1, INT_MAX);
     switch(input) {
         case 1: 
-            run_sorting(output, SORT_TYPE::MERGE_SORT, array_size);
+            run_sorting(output, SORT_TYPE::MERGE_SORT);
             break;
         case 2:
-            run_sorting(output, SORT_TYPE::QUICK_SORT, array_size);
+            run_sorting(output, SORT_TYPE::QUICK_SORT);
             break;
         case 3:
-            run_sorting(output, SORT_TYPE::INSERTION_SORT, array_size);
+            run_sorting(output, SORT_TYPE::INSERTION_SORT);
             break;
         case 4:
-            run_benchmarking(output, array_size, {MERGE_SORT, QUICK_SORT, INSERTION_SORT});
+            run_benchmarking(output, {MERGE_SORT, QUICK_SORT, INSERTION_SORT});
             break;
     }
     remove_ostream(output);

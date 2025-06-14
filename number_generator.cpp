@@ -1,6 +1,8 @@
 #include "number_generator.hpp"
 #include <cstdlib>
+#include <iostream>
 #include <stdexcept>
+#include <fstream>
 
 static const std::string_view ASCENDING_STR = "Ascending";
 static const std::string_view DESCENDING_STR = "Descending";
@@ -42,4 +44,27 @@ std::vector<int> generate_numbers(size_t size, GENERATION_TYPE type) {
             return generate_random(size);
     }
     throw std::logic_error("generate_numbers mapping is broken");
+}
+std::vector<int> read_numbers_from_file(std::string filename) {
+    std::vector<int> numbers;
+    std::ifstream is(filename);
+    int number;
+    while(is >> number) {
+        numbers.push_back(number);
+    }
+    return numbers;
+}
+std::vector<int> get_input_array() {
+    std::vector<int> numbers;
+    bool reading = true;
+    std::cout << "Enter space-separated numbers (any letter to stop): ";
+    while (reading) {
+        int number;
+        std::cin >> number;
+        if(!std::cin.good()) {
+            break;
+        }
+        numbers.push_back(number);
+    }
+    return numbers;
 }
