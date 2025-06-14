@@ -1,5 +1,6 @@
 #include <climits>
 #include <chrono>
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <vector>
@@ -39,9 +40,14 @@ std::ostream* ask_ostream() {
             return &std::cout;
         case 2:
             std::string filename;
-            std::cout << "Enter file name: ";
-            std::cin >> filename;
-            return new std::ofstream(filename);
+            std::ofstream* of;
+            of = new std::ofstream();
+            do {
+                std::cout << "Enter file name: ";
+                std::cin >> filename;
+                of->open(filename);
+            } while(!of->is_open());
+            return of;
     }
     throw std::logic_error("print_result is not captured.");
 }
@@ -69,12 +75,17 @@ std::vector<int> get_user_numbers() {
         }
         case 2: {
             std::string filename;
-            std::cout << "Enter file name: ";
-            std::cin >> filename;
-            return read_numbers_from_file(filename);
+            std::ifstream is;
+            do {
+                std::cout << "Enter file name: ";
+                std::cin >> filename;
+                is.open(filename);
+            } while(!is.is_open());
+            
+            return read_numbers_from_file(std::move(is));
         }
         case 3: {
-            return generate_numbers(99, RANDOM);
+            return generate_numbers(20, RANDOM);
         }
     }       
     throw std::logic_error("get_input in get_user_numbers gave wrong input.");

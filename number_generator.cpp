@@ -45,9 +45,8 @@ std::vector<int> generate_numbers(size_t size, GENERATION_TYPE type) {
     }
     throw std::logic_error("generate_numbers mapping is broken");
 }
-std::vector<int> read_numbers_from_file(std::string filename) {
+std::vector<int> read_numbers_from_file(std::ifstream is) {
     std::vector<int> numbers;
-    std::ifstream is(filename);
     int number;
     while(is >> number) {
         numbers.push_back(number);
