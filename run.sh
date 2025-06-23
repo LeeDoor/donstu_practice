@@ -1,1 +1,1 @@
-g++ -std=c++20 main.cpp sorting.cpp number_generator.cpp -o a.out -g && ./a.out
+g++ main.cpp input.cpp output.cpp knn_algorithm.cpp k_means_algorithm.cpp -std=c++20 && ./a.out

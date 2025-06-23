@@ -1,158 +1,112 @@
-#include <climits>
-#include <chrono>
-#include <filesystem>
-#include <functional>
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include "sorting.hpp"
-#include "number_generator.hpp"
+#include "header.hpp"
 
-static const std::string_view DELIMETER = "============";
-
-int get_input(int from, int to) {
-    int input = -1;
-    std::cout << "Enter the item number: ";
-    while (true) {
-        std::cin >> input;
-        if(std::cin.good() && from <= input && input <= to)
-            return input;
-        std::cin.clear();
-        std::cin.ignore(INT_MAX, '\n');
-        std::cout << "please try again: ";
-    }
-    return input;
-}
-void print_array(std::ostream* os, const std::vector<int>& numbers) {
-        for(int i : numbers) {
-            (*os) << i << ' ';
-    }   (*os) << std::endl;
-}
-
-std::ostream* ask_ostream() {
+// вежливо просит ввести значение для К.
+int get_valid_k(int mx) {
     std::cout << 
-        "Where do you want to put sorting results?\n"
-        "1) standard output\n"
-        "2) file\n";
-    int print_result = get_input(1, 2);
-    switch(print_result) {
+        "Enter K value for your calculations.\n"
+        "Use K less than the data set size for effectiveness\n";
+    return static_cast<int>(get_number(1, mx));
+}
+
+// спрашивает, куда положить результаты вычислений.
+// если пользователь захочет в консоль, возвращает пустую строку.
+// если в файл, возвращает имя файла.
+std::string get_filename_or_console() {
+    std::cout << 
+        "Where to put the results?\n"
+        "1) in console\n"
+        "2) in file\n";
+    return get_number(1, 2) == 2 ? get_filename() : "";
+}
+
+// меню, в котором мы выбираем, откуда брать данные
+// появляется в начале и когда просим загрузить новые данные
+bool initial_menu(DataSet& data_set, int unit_size) {
+    std::cout << 
+        "How to load the data?\n"
+        "1) enter manually\n"
+        "2) read from file\n"
+        "3) generate\n"
+        "0) exit\n";
+    int choice = get_number(0, 3);
+    switch(choice) {
+        case 0:
+            return false;
         case 1:
-            return &std::cout;
-        case 2:
-            std::string filename;
-            std::ofstream* of;
-            of = new std::ofstream();
-            do {
-                std::cout << "Enter file name: ";
-                std::cin >> filename;
-                of->open(filename);
-            } while(!of->is_open());
-            return of;
-    }
-    throw std::logic_error("print_result is not captured.");
-}
-void remove_ostream(std::ostream* output) {
-    if(output == nullptr || output == &std::cout) return;
-    delete output;
-}
-
-std::chrono::milliseconds measure_time(std::function<void(std::vector<int>&)> method, std::vector<int>& numbers) {
-    auto begin_time = std::chrono::steady_clock::now();
-    method(numbers);
-    auto end_time = std::chrono::steady_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
-}
-std::vector<int> get_user_numbers() {
-    std::cout << 
-        "Which numbers do you want to sort?\n"
-        "1) Enter manually\n"
-        "2) Read from file\n"
-        "3) Generate randomly\n";
-    int select = get_input(1, 3);
-    switch(select) {
-        case 1: {
-            return get_input_array();
-        }
-        case 2: {
-            std::string filename;
-            std::ifstream is;
-            do {
-                std::cout << "Enter file name: ";
-                std::cin >> filename;
-                is.open(filename);
-            } while(!is.is_open());
-            
-            return read_numbers_from_file(std::move(is));
-        }
-        case 3: {
-            return generate_numbers(20, RANDOM);
-        }
-    }       
-    throw std::logic_error("get_input in get_user_numbers gave wrong input.");
-}
-void run_sorting(std::ostream* os, SORT_TYPE sort_type) {
-    std::vector<int> numbers = get_user_numbers();
-    (*os) << DELIMETER << std::endl;
-    (*os) << "Initial array: ";
-    print_array(os, numbers);
-
-    auto elapsed = measure_time(get_sort_method(sort_type), numbers);
-
-    (*os) << "Sorted array: ";
-    print_array(os, numbers);
-    (*os) << "Elapsed time: " << elapsed.count() << "ms\n";
-}
-
-void run_benchmarking(std::ostream* os, std::list<SORT_TYPE> methods) {
-    std::cout << "Enter array size to generate:\n";
-    int array_size = get_input(0, INT_MAX);
-    (*os) << "Benchmarking array of size " << array_size << std::endl;
-    (*os) << std::left;
-    (*os) << std::setw(15) << "Sort Type"; 
-    for(GENERATION_TYPE type : generation_types) {
-        (*os) << std::setw(15) << gen_type_str(type);
-    }   (*os) << std::endl;
-    for(SORT_TYPE sort_type : methods) {
-        (*os) << std::setw(15) << sort_type_str(sort_type);
-        for(GENERATION_TYPE gen_type : generation_types) {
-            auto numbers = generate_numbers(array_size, gen_type);
-            auto elapsed = measure_time(get_sort_method(sort_type), numbers);
-            (*os) << std::setw(15) << std::to_string(elapsed.count()) + "ms";
-        }   (*os) << std::endl;
-    }
-}
-
-bool main_menu() {
-    std::cout << 
-        "Select an item from the menu:\n"
-        "0) Exit\n"
-        "1) Sort using Merge sort\n"
-        "2) Sort using Quick sort\n"
-        "3) Sort using Insertion sort\n"
-        "4) Benchmark algorithms\n";
-    int input = get_input(0, 4);
-    if(input == 0) return false;
-    std::ostream* output = ask_ostream();
-    switch(input) {
-        case 1: 
-            run_sorting(output, SORT_TYPE::MERGE_SORT);
+            data_set = read_set_console();
+            unit_size = data_set.front().size();
             break;
         case 2:
-            run_sorting(output, SORT_TYPE::QUICK_SORT);
+            // read from file
             break;
         case 3:
-            run_sorting(output, SORT_TYPE::INSERTION_SORT);
-            break;
-        case 4:
-            run_benchmarking(output, {MERGE_SORT, QUICK_SORT, INSERTION_SORT});
+            // generate data
             break;
     }
-    remove_ostream(output);
+    return true;
+}
+
+// главное меню, появляется после загрузки данных. повторяется пока
+// не выберем пункт exit
+bool main_menu(DataSet& data_set, int unit_size) {
+    std::cout <<
+        "What do you want to do:\n"
+        "1) load new data set\n"
+        "2) save current data set to file\n"
+        "3) apply KNN algorithm\n"
+        "4) apply K-means algorithm\n"
+        "5) add element to data set\n"
+        "0) exit\n";
+    int choice = get_number(0, 4);
+    switch(choice) {
+        case 0:
+            return false;
+        case 1: {
+            std::cout << "Current data set will be lost since last save; proceed?(0 - yes, 1 - no):";
+            choice = get_number(0, 1);
+            if(choice == 0) {
+                if(!initial_menu(data_set, unit_size)) {
+                    std::cout << "Data hasn't changed\n";
+                } else {
+                    std::cout << "New data set loaded\n";
+                }
+            } std::cout << "Cancelled\n";
+            break;
+        }
+        case 2: {
+            std::string filename = get_filename();
+            if(save_data_set(data_set, filename)) {
+                std::cout << "Data saved successfully\n";
+            } 
+            break;
+        }
+        case 3: {
+            int K = get_valid_k(data_set.size());
+            std::string filename_or_console = get_filename_or_console();
+            DataUnit new_unit = read_unit_console(unit_size);
+            knn_algorithm(data_set, new_unit, K, filename_or_console);
+            break;
+        }
+        case 4: {
+            int K = get_valid_k(data_set.size());
+            std::string filename_or_console = get_filename_or_console();
+            k_means_algorithm(data_set, K, filename_or_console);
+            break;
+        }
+        case 5: {
+            data_set.push_back(read_unit_console(unit_size));
+            break;
+        }
+    }
     return true;
 }
 
 int main() {
     srand(time(NULL));
-    std::cout << "Welcome to sorting comparer!\n";
-    while(main_menu());
+
+    DataSet data_set;
+    int unit_size;
+    if(!initial_menu(data_set, unit_size)) 
+        return 0;
+    while(main_menu(data_set, unit_size));
 }
