@@ -30,7 +30,7 @@ using DataSet = std::vector<Stallion>;
 
 bool save_data_set(const DataSet& data_set, const std::string& filename);
 int knn_algorithm(const DataSet& data_set, Stallion& new_unit, int K, const std::string& filename_or_console);
-void k_means_algorithm(const DataSet& data_set, int K, const std::string& filename_or_console);
+void k_means_algorithm(DataSet& data_set, int K, const std::string& filename_or_console);
 
 std::string serialize_category(WeightStatus category);
 std::string serialize_header();
@@ -43,6 +43,7 @@ std::string get_filename();
 Stallion read_unit_console(bool ask_age);
 DataSet read_set_console();
 DataSet read_set_file(std::string filename, bool& succeed);
+Stallion generate_unit();
 DataSet generate_set(int size);
 
 void k_means_algorithm(const DataSet& data_set, int K, const std::string& filename_or_console);
