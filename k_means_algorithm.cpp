@@ -7,7 +7,7 @@ struct Centroid {
     double w_status = 0;
 };
 using Centroids = std::vector<Centroid>;
-
+// генерирует центроиды. каждый параметр какой-то краевой, чтобы лучше было видно разделение на группы
 Centroid generate_centroid() {
     Centroid centroid;
     centroid.age = (rand() % 2) ? 6 : 34;
@@ -16,6 +16,7 @@ Centroid generate_centroid() {
     centroid.w_status = rand() % 5;
     return centroid;
 }
+// получает расстояние от пони до центроида
 double get_distance_to_centroid(const Stallion& stallion, const Centroid& centroid) {
     double distance;
     distance += std::pow(stallion.age_months - centroid.age, 2);
@@ -23,7 +24,7 @@ double get_distance_to_centroid(const Stallion& stallion, const Centroid& centro
     distance += std::pow((stallion.weight_kg - centroid.weight) / 10.0, 2);
     return std::sqrt(distance); 
 }
-
+// генерирует центроиды
 Centroids generate_centroids(int K) {
     Centroids centroids(K);
     for(int i = 0; i < K; ++i) {
@@ -31,7 +32,7 @@ Centroids generate_centroids(int K) {
     }
     return centroids;
 }
-
+// формирует новый центроид на основе средних значений пони в кластере и старого центроида
 Centroids get_new_centroids(const Centroids& centroids, const std::vector<std::vector<Stallion*>>& clusters) {
     int K = centroids.size();
     Centroids new_centroids(K, Centroid{});
@@ -53,7 +54,7 @@ Centroids get_new_centroids(const Centroids& centroids, const std::vector<std::v
     }
     return new_centroids;
 }
-
+// сравнивает два центроида по эпсилону
 bool almost_similar(const Centroids& first, const Centroids& second) {
     double epsilon = 1e-6;
     bool similar = true;
@@ -66,7 +67,7 @@ bool almost_similar(const Centroids& first, const Centroids& second) {
     }
     return true;
 }
-
+// преобразует кластер поней в строку
 std::string serialize_cluster(const std::vector<Stallion*>& cluster) {
     std::stringstream ss;
     for(const auto& point : cluster) {
@@ -74,7 +75,7 @@ std::string serialize_cluster(const std::vector<Stallion*>& cluster) {
     }
     return ss.str();
 }
-
+// формирует вывод в строку
 std::string serialize_kmeans_output(const std::vector<std::vector<Stallion*>>& clusters) {
     std::stringstream ss;
     int K = clusters.size();
@@ -86,6 +87,7 @@ std::string serialize_kmeans_output(const std::vector<std::vector<Stallion*>>& c
     return ss.str();
 }
 
+// разделяет датасет на группы и выводит результат
 void k_means_algorithm(DataSet& data_set, int K, const std::string& filename_or_console) {
     Centroids centroids = generate_centroids(K);
     std::vector<std::vector<Stallion*>> clusters;
