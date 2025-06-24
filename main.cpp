@@ -95,6 +95,7 @@ bool main_menu(DataSet& data_set) {
             std::string filename_or_console = get_filename_or_console();
             Stallion new_unit = read_unit_console(false);
             knn_algorithm(data_set, new_unit, K, filename_or_console);
+            data_set.push_back(new_unit);
             break;
         }
         case 4: {

@@ -4,12 +4,15 @@ using KNeighbors = std::vector<std::pair<double, int>>;
 
 std::string serialize_knn_output(const DataSet& data_set, const Stallion& new_stallion, const KNeighbors& nearest_K) {
     std::stringstream ss;
+    ss << "======\n";
+    ss << serialize_header();
     ss << "Working with element:\n" << serialize_unit(new_stallion, true) << std::endl;
     ss << "Nearest " << nearest_K.size() << " categories:\n";
     for(const auto& unit : nearest_K) {
         ss << serialize_unit(data_set[unit.second], true) << std::endl;
     }
     ss << "Selected category: " << serialize_category(new_stallion.weight_status) << std::endl;
+    ss << "======\n";
     return ss.str();
 }
 
@@ -47,7 +50,7 @@ WeightStatus get_preferred_category(const DataSet& data_set, const KNeighbors& n
     WeightStatus result_cat = Normal;
     for(auto pair : nearest_K) {
         WeightStatus current_category = data_set[pair.second].weight_status;
-        repeatings[current_category] = 1;
+        repeatings[current_category] += 1;
         if(repeatings[current_category] > repeatings[result_cat]) {
             result_cat = current_category;
         }

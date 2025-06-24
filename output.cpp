@@ -33,9 +33,9 @@ std::string serialize_unit(const Stallion& stallion, bool is_user_print) {
 std::string serialize_header() {
     std::stringstream ss;
     ss  << std::setw(15) << "Nickname" << ' ' 
-        << std::setw(8) << "Age, m" << ' ' 
-        << std::setw(6) << "H, cm" << ' ' 
-        << std::setw(13) << "Weight, kg" << ' ' 
+        << std::setw(8) << "Age,m" << ' ' 
+        << std::setw(6) << "H,cm" << ' ' 
+        << std::setw(13) << "Weight,kg" << ' ' 
         << std::setw(21) << "Weight category" << std::endl; 
     return ss.str();
 }
