@@ -1,0 +1,24 @@
+23
+Twilight      6 124 250 2
+RainbowDash   6 136 375 2
+Fluttershy    6 129 225 1
+Applejack     7 125 200 0
+PinkiePie     8 135 390 3
+Rarity        9 136 410 4
+Spike         11 135 380 2
+Starlight     12 147 540 2
+Sunset        13 135 365 1
+Celestia      13 140 565 3
+Luna          14 145 580 4
+Discord       13 135 340 0
+ShiningArmor  18 140 435 1
+Cadance       19 145 450 2
+Zecora        20 143 650 3
+Trixie        19 153 650 2
+Derpy         18 150 665 3
+Scootaloo     19 151 680 4
+SweetieBelle  24 143 490 2
+BigMac        25 146 470 1
+Cheerilee     26 156 710 3
+GrannySmith   26 152 800 4
+Braeburn      36 160 770 3
