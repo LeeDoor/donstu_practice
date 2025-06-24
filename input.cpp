@@ -82,6 +82,46 @@ DataSet read_set_file(std::string filename, bool& succeed) {
     for(int i = 0; i < N; ++i) {
         data_set.push_back(read_unit_file(ifs));
     }
-    succeed = true;//ifs.good();
+    succeed = ifs.good();
     return data_set;
+}
+
+Stallion generate_unit() {
+    Stallion stallion;
+    std::array<std::string, 233> names = {"Twilight", "Sparkle", "Rainbow", "Dash", "Fluttershy", "Applejack", "Pinkie", "Pie", "Rarity", "Spike", "Starlight", "Glimmer", "Sunset", "Shimmer", "Princess", "Celestia", "Luna", "Discord", "Shining", "Armor", "Cadance", "Trixie", "Lulamoon", "Zecora", "Derpy", "Hooves", "Scootaloo", "Sweetie", "Belle", "Apple", "Bloom", "Granny", "Smith", "Big", "McIntosh", "Cheerilee", "Diamond", "Tiara", "Silver", "Spoon", "Fancy", "Pants", "Octavia", "Melody", "Vinyl", "Scratch", "Lyra", "Heartstrings", "Bon", "Minuette", "Moondancer", "Cloudchaser", "Flitter", "Thunderlane", "Soarin", "Spitfire", "Braeburn", "Daring", "Do", "Maud", "Limestone", "Marble", "Cheese", "Sandwich", "Tree", "Hugger", "Sugar", "Party", "Favor", "Night", "Glider", "Double", "Torch", "Song", "Coco", "Pommel", "Saffron", "Masala", "Autumn", "Blaze", "Tempest", "Shadow", "Queen", "Chrysalis", "King", "Sombra", "Lord", "Tirek", "Cozy", "Glow", "Chancellor", "Neighsay", "Mistmane", "Rockhoof", "Flash", "Magnus", "Starswirl", "the", "Bearded", "Mage", "Meadowbrook", "Somnambula", "Sunburst", "Stygian", "Iron", "Will", "Gilda", "Gabby", "Gallus", "Smolder", "Ocellus", "Sandbar", "Yona", "Silverstream", "Terramar", "Pharynx", "Thorax", "Ember", "Bulk", "Biceps", "Hoops", "Scoreboard", "Dumb", "Bell", "Fleur", "Dislee", "Suri", "Polomare", "Wind", "Rider", "Lightning", "Dust", "Screwball", "Babs", "Seed", "Lilymoon", "Spoiled", "Rich", "Filthy", "Jet", "Set", "Upper", "Crust", "Primrose", "Daisy", "Junebug", "Amethyst", "Star", "Berry", "Punch", "Carrot", "Top", "Colgate", "Doctor", "Time", "Turner", "Berryshine", "Blossomforth", "Raindrops", "Snowflake", "Roseluck", "Lily", "Valley", "Cherry", "Comet", "Tail", "Hayseed", "Turnip", "Truck", "Pokey", "Pierce", "Mulia", "Mild", "Noteworthy", "Quillfeather", "Sassy", "Saddles", "Toola", "Roola", "Hunter", "Bright", "Eyes", "Lickety","Split", "Majesty", "Velvet", "Light", "Sentry", "Lemon", "Hearts", "Twinkleshine", "Firefly", "Parasol", "Surprise", "Whistler", "Masquerade", "Lighthoof", "Sweet", "Tooth", "Peachy", "Twinkle", "Twirl", "Lavan", "Whinnyapolis", "Starflower", "Stuff", "Butterscotch", "Clover", "Mimic", "Glory", "Posey", "Drifter", "Moonstone", "Medley", "Trickles", "Nightcap", "Wysteria", "Razzaroo", "Sunbeam", "Sunblaze", "Sunspot", "Sunny", "Rays", "Sunshimmer", "Sunstone", "Daze", "Days", "Flare", "Shine", "Skies", "Smiles", "Sun", "Sunray"};
+    stallion.nickname = names[rand() % 233];
+    stallion.age_months = rand() % 34 + 6;
+    stallion.height_cm = rand() % 100 + 80;
+    stallion.weight_kg = rand() % 700 + 200;
+    stallion.weight_status = WeightStatus::Normal;
+    std::cout 
+        << "generated pony:\n"
+        << serialize_header()
+        << serialize_unit(stallion, true) 
+        << std::endl
+        << "enter it's weight status:\n"
+            "1) Strong underweight\n"
+            "2) Slight underweight\n"
+            "3) Normal\n"
+            "4) Slight overweight\n"
+            "5) Strong overweight\n"
+            "0) stop\n";
+            
+    int gn = get_number(0, 5);
+    if(gn == 0) return Stallion{};
+    stallion.weight_status = static_cast<WeightStatus>(gn - 1);
+    return stallion;
+}
+
+DataSet generate_set(int size) {
+    DataSet set;
+    set.reserve(size);
+    for(int i = 0; i < size; ++i) {
+        Stallion pony = generate_unit();
+        if(pony.nickname.empty()) {
+            return set;
+        }
+        set.push_back(pony);
+    }
+    return set;
 }

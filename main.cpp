@@ -26,9 +26,9 @@ bool initial_menu(DataSet& data_set) {
         "How to load the data?\n"
         "1) enter manually\n"
         "2) read from file\n"
-        "3) generate NOT IMPLEMENTED\n"
+        "3) generate\n"
         "0) exit\n";
-    int choice = get_number(0, 2);
+    int choice = get_number(0, 3);
     switch(choice) {
         case 0: {
             return false;
@@ -46,7 +46,9 @@ bool initial_menu(DataSet& data_set) {
             break;
         }
         case 3: {
-            // generate data
+            std::cout << "Enter data set size: ";
+            int size = get_number(1, INT_MAX);
+            data_set = generate_set(size);
             break;
         }
     }

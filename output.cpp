@@ -13,7 +13,6 @@ std::string serialize_category(WeightStatus category) {
             return "Slight overweight";
         case StrongOverweight:
             return "Strong overweight";
-            break;
     }
     throw std::runtime_error("serialize_category didn't match any");
 }
